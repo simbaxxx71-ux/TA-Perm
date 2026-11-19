@@ -1172,10 +1172,11 @@ if(currentRole!=='carrier'){
 
   /* Экспорт CSV у перевозчика: только его поля */
   window.exportCSV=function(){
+    const r2=x=>Math.round((num(x)+Number.EPSILON)*100)/100;
     if(currentRole==='carrier'&&currentCarrier){
       const data=getVisibleEntries();
       const h=['Дата','Заказчик','Материал','Перевозчик','Вес / час','Заправка ДТ / л','Цена ДТ','ТТН/Счет/Упд'];
-      const rows=data.map(e=>[e.date,e.customer,e.material,e.carrier,e.weight,e.fuelL,e.fuelPrice,e.doc]);
+      const rows=data.map(e=>[e.date,e.customer,e.material,e.carrier,r2(e.weight),r2(e.fuelL),r2(e.fuelPrice),e.doc]);
       const csv=[h,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(';')).join('\n');
       const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
       const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
@@ -1186,7 +1187,7 @@ if(currentRole!=='carrier'){
     // владелец — старый полный экспорт
     if(!ROLES[currentRole]?.canExport){ showToast('Нет прав'); return; }
     const h=['Дата','Заказчик','Материал','Перевозчик','Вес / час','Цена материала','Итог материалы','Цена','Цена перевозчика','Оплата перевозчика','Оплата нам','Наш доход','период','ТТН/Счет/Упд','Заправка ДТ / л','Цена ДТ','Итог','Итог за вычетом ДТ'];
-    const rows=getVisibleEntries().map(e=>[e.date,e.customer,e.material,e.carrier,e.weight,e.matPrice,e.matTotal,e.ourPrice,e.carrPrice,e.carrPay,e.ourPay,e.income,e.period,e.doc,e.fuelL,e.fuelPrice,e.fuelTotal,e.net]);
+    const rows=getVisibleEntries().map(e=>[e.date,e.customer,e.material,e.carrier,r2(e.weight),r2(e.matPrice),r2(e.matTotal),r2(e.ourPrice),r2(e.carrPrice),r2(e.carrPay),r2(e.ourPay),r2(e.income),e.period,e.doc,r2(e.fuelL),r2(e.fuelPrice),r2(e.fuelTotal),r2(e.net)]);
     const csv=[h,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(';')).join('\n');
     const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
